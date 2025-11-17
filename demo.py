@@ -1,6 +1,6 @@
 """
-Demo script for Engineered Prompt system
-Demonstrates the full workflow from Hebrew input to generated prompt
+Demo script for Engineered Prompt system (UPGRADED VERSION)
+Demonstrates the new focused template workflow: Visual, Textual, Technical
 """
 import sys
 from pathlib import Path
@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from src.prompt_generator import PromptGenerator
 from src.database import PromptDatabase
-from src.intent_detector import IntentDetector
+from src.task_classifier import TaskClassifier
 import config
 
 
@@ -20,68 +20,79 @@ def print_separator():
 
 
 def demo():
-    """Run the demo."""
-    print("🎯 Engineered Prompt - Demo\n")
-    print("מערכת המרת טקסט עברי לפרומפט מובנה\n")
+    """Run the upgraded demo with 3 focused templates."""
+    print("🎯 Engineered Prompt - UPGRADED Demo\n")
+    print("מערכת המרת טקסט עברי לפרומפטים ממוקדים")
+    print("🎨 Visual | 📝 Textual | 💻 Technical\n")
     print_separator()
 
     # Initialize components
     print("🔧 מאתחל רכיבי מערכת...")
     generator = PromptGenerator(config.TEMPLATES_DIR)
     db = PromptDatabase(config.DATABASE_URL)
-    detector = IntentDetector()
+    classifier = TaskClassifier()
 
-    print(f"✓ נטענו {len(generator.get_available_templates())} תבניות")
+    print(f"✓ נטענו {len(generator.get_available_templates())} טמפלטים ממוקדים")
     print("✓ מסד נתונים מוכן")
-    print("✓ מזהה כוונות מוכן")
+    print("✓ מסווג משימות מוכן")
 
     print_separator()
 
-    # Demo examples
+    # Demo examples - one for each template type
     examples = [
         {
-            "title": "דוגמה 1: מכתב רשמי",
-            "text": "כתוב לי מכתב רשמי למורה של בני על איחור חוזר של התלמיד לשיעורים בגלל בעיות תחבורה",
-            "emoji": "📝"
+            "title": "דוגמה 1: 🎨 חזותי (Visual)",
+            "text": "צור תמונה של חתול בחלל עם תאורה דרמטית ואיכות 4K",
+            "context": "לפרויקט מדע בדיוני",
+            "instructions": "ריאליסטי ככל האפשר",
+            "expected_type": "visual"
         },
         {
-            "title": "דוגמה 2: כתיבה יצירתית",
-            "text": "כתוב לי סיפור קצר ויצירתי על רובוט שמגלה רגשות לראשונה",
-            "emoji": "✨"
+            "title": "דוגמה 2: 📝 טקסטואלי (Textual)",
+            "text": "כתוב מייל רשמי למנהל לבקש חופשה לשבוע הבא",
+            "context": "עובד במשך 3 שנים ללא חופשה",
+            "instructions": "שמור על טון מקצועי ומכבד",
+            "expected_type": "textual"
         },
         {
-            "title": "דוגמה 3: אימייל עבודה",
-            "text": "שלח מייל קצר לעמית בעבודה לבקש עזרה בפרויקט החדש",
-            "emoji": "📧"
-        },
-        {
-            "title": "דוגמה 4: תרגום",
-            "text": "תרגם לאנגלית באופן רשמי: שלום, אני רוצה לקבוע פגישה",
-            "emoji": "🌐"
+            "title": "דוגמה 3: 💻 טכני (Technical)",
+            "text": "תכנת פונקציה בפייתון למיון רשימה של מספרים באופן מהיר",
+            "context": "לעבודה עם רשימות גדולות",
+            "instructions": "אופטימיזציה לביצועים",
+            "expected_type": "technical"
         }
     ]
 
     for i, example in enumerate(examples, 1):
-        print(f"{example['emoji']} {example['title']}")
+        emoji = {"visual": "🎨", "textual": "📝", "technical": "💻"}.get(example['expected_type'], "📋")
+        print(f"{emoji} {example['title']}")
         print(f"{'─'*80}")
         print(f"\n📥 קלט עברי:")
         print(f'   "{example["text"]}"')
+        if example['context']:
+            print(f'\n📌 הקשר: "{example["context"]}"')
+        if example['instructions']:
+            print(f'📌 הוראות: "{example["instructions"]}"')
         print()
 
-        # Detect intent
-        intent_result = detector.detect_intent(example["text"])
-        print(f"🔍 זיהוי כוונה:")
-        print(f"   • כוונה: {intent_result.intent}")
-        print(f"   • ביטחון: {intent_result.confidence:.0%}")
-        print(f"   • סגנון: רשמיות={intent_result.style['formality']}, טון={intent_result.style['tone']}, אורך={intent_result.style['length']}")
-        if intent_result.metadata.get('matched_keywords'):
-            print(f"   • מילות מפתח: {', '.join(intent_result.metadata['matched_keywords'][:3])}")
+        # Classify task
+        task_result = classifier.classify_task(example["text"])
+        print(f"🔍 סיווג משימה:")
+        print(f"   • סוג: {task_result.task_type}")
+        print(f"   • ביטחון: {task_result.confidence:.0%}")
+        if task_result.metadata.get('matched_keywords'):
+            print(f"   • מילות מפתח: {', '.join(task_result.metadata['matched_keywords'][:3])}")
         print()
 
-        # Generate prompt
-        result = generator.generate(example["text"])
+        # Generate prompt with context and instructions
+        result = generator.generate(
+            example["text"],
+            context=example['context'],
+            instructions=example['instructions']
+        )
+
         print(f"✨ פרומפט שנוצר:")
-        print(f"   תבנית: {result.template_used}")
+        print(f"   טמפלט: {result.template_used}")
         print()
         print("─" * 80)
         print(result.prompt)
@@ -91,7 +102,7 @@ def demo():
         # Save to database
         prompt_id = db.save_prompt(
             input_text=example["text"],
-            detected_intent=result.intent,
+            detected_intent=result.task_type,
             generated_prompt=result.prompt,
             detected_style=str(result.metadata.get("style", {})),
             metadata=result.metadata
@@ -99,8 +110,12 @@ def demo():
         print(f"💾 נשמר במסד נתונים (ID: {prompt_id})")
 
         # Simulate feedback
-        feedback = ["good", "good", "neutral", "good"][i-1]
-        rating = [5.0, 4.5, 3.5, 5.0][i-1]
+        feedback_ratings = [
+            ("good", 5.0),
+            ("good", 4.5),
+            ("good", 5.0)
+        ]
+        feedback, rating = feedback_ratings[i-1]
         db.update_feedback(prompt_id, feedback, rating)
         print(f"⭐ משוב סימולציה: {feedback} ({rating}/5.0)")
 
@@ -111,33 +126,32 @@ def demo():
     stats = db.get_statistics()
     print(f"   • סך הכל פרומפטים: {stats['total_prompts']}")
     print(f"   • דירוג ממוצע: {stats['average_rating']:.1f}/5.0")
-    print(f"   • סוגי כוונות: {stats['total_intents']}")
-    print(f"   • כוונות זמינות: {', '.join(stats['intents'])}")
+    print(f"   • סוגי משימות: {stats['total_intents']}")
+    print(f"   • משימות זמינות: {', '.join(stats['intents'])}")
 
     print_separator()
 
-    # Show history
-    print("📜 היסטוריה אחרונה:")
-    history = db.get_prompt_history(limit=3)
-    for record in history[:3]:
-        print(f"\n   🎯 {record['detected_intent']}")
-        print(f"      קלט: {record['input_text'][:60]}...")
-        if record['rating']:
-            print(f"      דירוג: {'⭐' * int(record['rating'])} ({record['rating']}/5.0)")
+    # Show best prompts per task type
+    print("🏆 הפרומפטים הטובים ביותר לכל סוג:")
 
-    print_separator()
-
-    # Show best prompts for a specific intent
-    print("🏆 הפרומפטים הטובים ביותר (formal_letter):")
-    best = db.get_best_prompts("formal_letter", min_rating=4.0, limit=2)
-    for record in best:
-        print(f"\n   ⭐ דירוג: {record['rating']}/5.0")
-        print(f"      {record['input_text'][:60]}...")
+    for task_type in ["visual", "textual", "technical"]:
+        emoji = {"visual": "🎨", "textual": "📝", "technical": "💻"}[task_type]
+        best = db.get_best_prompts(task_type, min_rating=4.0, limit=1)
+        if best:
+            record = best[0]
+            print(f"\n   {emoji} {task_type.upper()}")
+            print(f"      ⭐ דירוג: {record['rating']}/5.0")
+            print(f"      📝 {record['input_text'][:60]}...")
 
     print_separator()
 
     print("✅ Demo הושלם בהצלחה!")
-    print("\n💡 כדי להריץ את הממשק המלא:")
+    print("\n💡 שינויים עיקריים במערכת המשודרגת:")
+    print("   • 3 טמפלטים ממוקדים (Visual, Textual, Technical)")
+    print("   • שדות Context ו-Instructions נפרדים")
+    print("   • סימון משתנים ב-$$ $$ במקום {}")
+    print("   • הסרת הערות גנריות מיותרות")
+    print("\n💻 כדי להריץ את הממשק המלא:")
     print("   streamlit run app.py")
     print()
 

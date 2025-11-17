@@ -1,0 +1,21 @@
+{
+  "task_type": "textual",
+  "name": "Textual Content Template",
+  "description": "Template for generating text content: emails, summaries, articles, letters",
+  "template": "Create textual content with the following specifications:\n\nPurpose: $$purpose$$\n(e.g., Inform, Persuade, Request, Report, Explain, Summarize)\n\nRecipient: $$recipient$$\n(e.g., Boss, Colleague, Customer, Teacher, General Audience)\n\nTone: $$tone$$\n(e.g., Professional, Friendly, Urgent, Formal, Casual, Empathetic)\n\nLength Constraint: $$length$$\n(e.g., Concise (1-2 paragraphs), Moderate (3-5 paragraphs), Extensive (1000+ words))\n\nKey Points to Cover:\n$$key_points$$\n\nAdditional Context: $$context$$\n\nSpecial Instructions: $$instructions$$",
+  "variables": [
+    "purpose",
+    "recipient",
+    "tone",
+    "length",
+    "key_points",
+    "context",
+    "instructions"
+  ],
+  "examples": [
+    {
+      "input": "כתוב מייל למנהל לבקש חופשה",
+      "output": "Professional email request for time off"
+    }
+  ]
+}

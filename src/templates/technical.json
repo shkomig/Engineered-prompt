@@ -1,0 +1,20 @@
+{
+  "task_type": "technical",
+  "name": "Technical/Code Template",
+  "description": "Template for generating code, functions, algorithms, and formulas",
+  "template": "Create technical code/solution with the following specifications:\n\nTarget Language: $$language$$\n(e.g., Python, JavaScript, SQL, LaTeX, C++, Java, Bash)\n\nEnvironment/Framework: $$environment$$\n(e.g., React, Django, Flask, Node.js, Console Only, Jupyter Notebook)\n\nKey Functionality:\n$$functionality$$\n(List all required features, inputs, and expected outputs)\n\nOptimization: $$optimization$$\n(e.g., Optimize for speed, readability, low memory usage, scalability)\n\nAdditional Context: $$context$$\n\nSpecial Instructions: $$instructions$$\n\nOutput Format: Provide a single, complete, executable code block.",
+  "variables": [
+    "language",
+    "environment",
+    "functionality",
+    "optimization",
+    "context",
+    "instructions"
+  ],
+  "examples": [
+    {
+      "input": "כתוב פונקציה בפייתון למיון מערך",
+      "output": "Python sorting function with specifications"
+    }
+  ]
+}
