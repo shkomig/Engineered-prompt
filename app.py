@@ -1,6 +1,6 @@
 """
 Engineered Prompt - Streamlit Web Interface
-Hebrew text to optimized prompts with hindsight learning
+Hebrew text to optimized prompts with focused templates
 """
 import streamlit as st
 from datetime import datetime
@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from src.prompt_generator import PromptGenerator, GeneratedPrompt
 from src.database import PromptDatabase
-from src.intent_detector import IntentDetector
+from src.task_classifier import TaskClassifier
 import config
 
 
@@ -43,7 +43,8 @@ def main():
 
     # Header
     st.title("🎯 Engineered Prompt")
-    st.markdown("### המרת טקסט עברי לפרומפט מובנה ואופטימלי")
+    st.markdown("### מערכת המרת טקסט עברי לפרומפטים ממוקדים")
+    st.markdown("**3 סוגי טמפלטים:** חזותי (Visual) | טקסטואלי (Textual) | טכני (Technical)")
     st.markdown("---")
 
     # Sidebar
@@ -55,12 +56,13 @@ def main():
             stats = st.session_state.db.get_statistics()
             st.metric("סך הכל פרומפטים", stats["total_prompts"])
             st.metric("דירוג ממוצע", f"{stats['average_rating']:.1f}/5.0")
-            st.metric("סוגי כוונות", stats["total_intents"])
+            st.metric("סוגי משימות", stats["total_intents"])
 
             if stats["intents"]:
-                st.write("**כוונות נתמכות:**")
-                for intent in stats["intents"]:
-                    st.write(f"- {intent}")
+                st.write("**סוגי משימות:**")
+                for task_type in stats["intents"]:
+                    emoji = {"visual": "🎨", "textual": "📝", "technical": "💻"}.get(task_type, "📋")
+                    st.write(f"{emoji} {task_type}")
         except Exception as e:
             st.error(f"שגיאה בטעינת סטטיסטיקות: {e}")
 
@@ -71,10 +73,11 @@ def main():
             st.session_state.show_history = True
 
         # Available Templates
-        with st.expander("📋 תבניות זמינות"):
+        with st.expander("📋 טמפלטים זמינים"):
             templates = st.session_state.generator.get_available_templates()
             for template in templates:
-                st.write(f"**{template['name']}**")
+                emoji = {"visual": "🎨", "textual": "📝", "technical": "💻"}.get(template['task_type'], "📋")
+                st.write(f"{emoji} **{template['name']}**")
                 st.caption(template['description'])
                 st.write("")
 
@@ -82,25 +85,48 @@ def main():
     col1, col2 = st.columns([1, 1])
 
     with col1:
-        st.header("📝 קלט - טקסט עברי")
+        st.header("📝 קלט")
 
-        # Intent selector (optional override)
-        detector = IntentDetector()
-        all_intents = ["אוטומטי (זיהוי אוטומטי)"] + detector.get_supported_intents()
+        # Task type selector (optional override)
+        classifier = TaskClassifier()
+        task_types_hebrew = {
+            "אוטומטי (זיהוי אוטומטי)": None,
+            "🎨 חזותי (Visual)": "visual",
+            "📝 טקסטואלי (Textual)": "textual",
+            "💻 טכני (Technical)": "technical"
+        }
 
-        selected_intent = st.selectbox(
-            "סוג כוונה (אופציונלי)",
-            all_intents,
-            help="השאר 'אוטומטי' לזיהוי אוטומטי של הכוונה"
+        selected_task_hebrew = st.selectbox(
+            "סוג משימה (אופציונלי)",
+            list(task_types_hebrew.keys()),
+            help="השאר 'אוטומטי' לזיהוי אוטומטי של סוג המשימה"
         )
+
+        selected_task = task_types_hebrew[selected_task_hebrew]
 
         # Text input
         hebrew_input = st.text_area(
             "הכנס טקסט בעברית:",
-            height=250,
-            placeholder="לדוגמה: כתוב לי מכתב רשמי למורה על איחור של תלמיד...",
+            height=150,
+            placeholder="דוגמאות:\n• צור תמונה של חתול בחלל\n• כתוב מייל למנהל לבקש חופשה\n• תכנת פונקציה בפייתון למיון רשימה",
             help="כתוב בעברית מה אתה רוצה ליצור"
         )
+
+        # Context input (new!)
+        with st.expander("⚙️ הגדרות מתקדמות (אופציונלי)"):
+            context_input = st.text_area(
+                "הקשר נוסף (Context):",
+                height=80,
+                placeholder="הקשר נוסף או רקע למשימה...",
+                help="מידע נוסף שעוזר להבין את ההקשר"
+            )
+
+            instructions_input = st.text_area(
+                "הוראות מיוחדות (Special Instructions):",
+                height=80,
+                placeholder="הוראות ספציפיות, אילוצים, או דרישות מיוחדות...",
+                help="הוראות או דרישות ספציפיות למשימה"
+            )
 
         # Generate button
         generate_col1, generate_col2 = st.columns([3, 1])
@@ -123,19 +149,18 @@ def main():
         if generate_button and hebrew_input.strip():
             with st.spinner("מייצר פרומפט..."):
                 try:
-                    # Determine intent override
-                    intent_override = None if selected_intent.startswith("אוטומטי") else selected_intent
-
-                    # Generate
+                    # Generate with context and instructions
                     result = st.session_state.generator.generate(
                         hebrew_input,
-                        override_intent=intent_override
+                        context=context_input.strip(),
+                        instructions=instructions_input.strip(),
+                        override_task=selected_task
                     )
 
                     # Save to database
                     prompt_id = st.session_state.db.save_prompt(
                         input_text=hebrew_input,
-                        detected_intent=result.intent,
+                        detected_intent=result.task_type,
                         generated_prompt=result.prompt,
                         detected_style=str(result.metadata.get("style", {})),
                         metadata=result.metadata
@@ -149,6 +174,8 @@ def main():
 
                 except Exception as e:
                     st.error(f"❌ שגיאה ביצירת פרומפט: {e}")
+                    import traceback
+                    st.code(traceback.format_exc())
 
     with col2:
         st.header("✨ פלט - פרומפט מובנה")
@@ -160,21 +187,29 @@ def main():
             with st.expander("ℹ️ מטא-דאטה", expanded=False):
                 meta_col1, meta_col2, meta_col3 = st.columns(3)
                 with meta_col1:
-                    st.metric("כוונה", result.intent)
+                    emoji = {"visual": "🎨", "textual": "📝", "technical": "💻"}.get(result.task_type, "📋")
+                    st.metric("סוג משימה", f"{emoji} {result.task_type}")
                 with meta_col2:
                     st.metric("ביטחון", f"{result.confidence:.0%}")
                 with meta_col3:
-                    st.metric("תבנית", result.template_used.split()[0])
+                    st.metric("טמפלט", result.template_used.split()[0])
 
                 if result.metadata.get("matched_keywords"):
                     st.write("**מילות מפתח שזוהו:**")
-                    st.write(", ".join(result.metadata["matched_keywords"]))
+                    st.write(", ".join(result.metadata["matched_keywords"][:5]))
+
+                # Show detected variables
+                if result.variables:
+                    st.write("**משתנים שזוהו:**")
+                    for key, value in result.variables.items():
+                        if value and value != "[to be specified]":
+                            st.write(f"• {key}: {value[:50]}{'...' if len(value) > 50 else ''}")
 
             # Generated prompt
             st.text_area(
                 "הפרומפט שנוצר:",
                 value=result.prompt,
-                height=300,
+                height=350,
                 help="העתק את הפרומפט הזה לשימוש ב-LLM"
             )
 
@@ -191,7 +226,7 @@ def main():
                 st.download_button(
                     label="⬇️ הורד",
                     data=result.prompt,
-                    file_name=f"prompt_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+                    file_name=f"prompt_{result.task_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
                     mime="text/plain",
                     use_container_width=True
                 )
@@ -237,6 +272,18 @@ def main():
         else:
             st.info("👈 הכנס טקסט בעברית בצד שמאל וצור פרומפט")
 
+            # Show examples
+            st.markdown("### 💡 דוגמאות לשימוש:")
+
+            st.markdown("**🎨 חזותי (Visual):**")
+            st.code("צור תמונה של חתול בחלל עם תאורה דרמטית")
+
+            st.markdown("**📝 טקסטואלי (Textual):**")
+            st.code("כתוב מייל רשמי למנהל לבקש חופשה לשבוע הבא")
+
+            st.markdown("**💻 טכני (Technical):**")
+            st.code("תכנת פונקציה בפייתון למיון רשימה באופן יעיל")
+
     # History view
     if st.session_state.get('show_history', False):
         st.markdown("---")
@@ -247,8 +294,11 @@ def main():
 
             if history:
                 for record in history:
+                    task_emoji = {"visual": "🎨", "textual": "📝", "technical": "💻"}.get(
+                        record['detected_intent'], "📋"
+                    )
                     with st.expander(
-                        f"🎯 {record['detected_intent']} - {record['created_at'][:10]}"
+                        f"{task_emoji} {record['detected_intent']} - {record['created_at'][:10]}"
                     ):
                         col_a, col_b = st.columns(2)
 
@@ -282,8 +332,8 @@ def main():
         f"""
         <div style='text-align: center; color: gray;'>
         <small>Engineered Prompt v{config.APP_VERSION} |
-        Built with Streamlit |
-        Hindsight Learning Enabled ✨</small>
+        3 Focused Templates: Visual • Textual • Technical |
+        Built with Streamlit ✨</small>
         </div>
         """,
         unsafe_allow_html=True

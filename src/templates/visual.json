@@ -1,0 +1,21 @@
+{
+  "task_type": "visual",
+  "name": "Visual Content Template",
+  "description": "Template for generating images, videos, and visual content",
+  "template": "Create a visual content with the following specifications:\n\nSubject/Description: $$subject$$\n\nVisual Style: $$visual_style$$\n(e.g., Photo-realistic, Digital Art, Concept Sketch, 3D Render, Watercolor, Minimalist)\n\nLighting: $$lighting$$\n(e.g., Dramatic Studio Light, Golden Hour, Soft Ambient, Neon, Natural Daylight)\n\nComposition/Angle: $$composition$$\n(e.g., Wide Shot, Close-up, Bird's Eye View, Depth of Field, Symmetrical)\n\nQuality: $$quality$$\n(e.g., 4K, Ultra Detailed, Cinematic, High Resolution, Professional Grade)\n\nAdditional Context: $$context$$\n\nSpecial Instructions: $$instructions$$",
+  "variables": [
+    "subject",
+    "visual_style",
+    "lighting",
+    "composition",
+    "quality",
+    "context",
+    "instructions"
+  ],
+  "examples": [
+    {
+      "input": "צור תמונה של חתול בחלל",
+      "output": "Visual prompt for a space cat with proper specifications"
+    }
+  ]
+}
