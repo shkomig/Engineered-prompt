@@ -1,0 +1,21 @@
+{
+  "intent": "general",
+  "name": "General Purpose Template",
+  "description": "Flexible template for general requests",
+  "template": "Task: {task_description}\n\nRequirements:\n- Style: {style}\n- Tone: {tone}\n- Length: {target_length}\n- Format: {format}\n\nContext: {context}\n\nAdditional Instructions: {additional_instructions}\n\nPlease complete the task according to the specifications above, ensuring quality and clarity.",
+  "variables": [
+    "task_description",
+    "style",
+    "tone",
+    "target_length",
+    "format",
+    "context",
+    "additional_instructions"
+  ],
+  "examples": [
+    {
+      "input": "עזור לי ליצור תוכן",
+      "output": "General content creation"
+    }
+  ]
+}

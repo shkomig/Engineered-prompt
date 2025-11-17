@@ -1,0 +1,22 @@
+{
+  "intent": "question_answer",
+  "name": "Question & Answer Template",
+  "description": "Template for answering questions and providing explanations",
+  "template": "You are a knowledgeable assistant providing clear, accurate information.\n\nQuestion: {question}\n\nContext: {context}\n\nResponse Requirements:\n- Style: {style}\n- Detail Level: {detail_level}\n- Tone: {tone}\n- Include: {must_include}\n- Length: {target_length}\n\nAdditional Instructions: {additional_instructions}\n\nPlease provide a comprehensive, accurate answer that:\n- Directly addresses the question\n- Provides relevant context and examples\n- Is easy to understand\n- Includes supporting information where helpful",
+  "variables": [
+    "question",
+    "context",
+    "style",
+    "detail_level",
+    "tone",
+    "must_include",
+    "target_length",
+    "additional_instructions"
+  ],
+  "examples": [
+    {
+      "input": "הסבר לי מה זה AI?",
+      "output": "Explanation of AI concept"
+    }
+  ]
+}
