@@ -1,0 +1,21 @@
+{
+  "intent": "summary",
+  "name": "Summary Template",
+  "description": "Template for creating summaries and abstracts",
+  "template": "You are a professional summarizer skilled at extracting key information.\n\nTask: Create a {summary_type} of the following content.\n\nContent to Summarize:\n{content}\n\nRequirements:\n- Length: {target_length}\n- Focus on: {focus_areas}\n- Style: {style}\n- Include: {must_include}\n\nAdditional Instructions: {additional_instructions}\n\nPlease create a clear, concise summary that captures the essential information while maintaining accuracy.",
+  "variables": [
+    "summary_type",
+    "content",
+    "target_length",
+    "focus_areas",
+    "style",
+    "must_include",
+    "additional_instructions"
+  ],
+  "examples": [
+    {
+      "input": "תסכם לי את הטקסט הבא בשלוש נקודות עיקריות",
+      "output": "Three main points summary"
+    }
+  ]
+}

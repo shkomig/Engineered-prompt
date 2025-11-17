@@ -1,0 +1,21 @@
+{
+  "intent": "translation",
+  "name": "Translation Template",
+  "description": "Template for translation tasks",
+  "template": "You are a professional translator with expertise in {source_language} and {target_language}.\n\nTask: Translate the following text from {source_language} to {target_language}.\n\nText to Translate:\n{text}\n\nRequirements:\n- Maintain the original meaning and tone\n- Use {formality_level} language\n- Consider cultural context: {cultural_context}\n- Style: {style}\n\nAdditional Instructions: {additional_instructions}\n\nPlease provide an accurate, natural-sounding translation that preserves the intent of the original text.",
+  "variables": [
+    "source_language",
+    "target_language",
+    "text",
+    "formality_level",
+    "cultural_context",
+    "style",
+    "additional_instructions"
+  ],
+  "examples": [
+    {
+      "input": "תרגם לאנגלית: שלום, איך אתה?",
+      "output": "Translation prompt from Hebrew to English"
+    }
+  ]
+}

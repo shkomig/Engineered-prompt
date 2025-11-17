@@ -1,0 +1,22 @@
+{
+  "intent": "creative_writing",
+  "name": "Creative Writing Template",
+  "description": "Template for generating creative content like stories, poems, and descriptions",
+  "template": "You are a creative writer with expertise in storytelling and imaginative writing.\n\nTask: Create {content_type} about {topic}.\n\nStyle Requirements:\n- Tone: {tone}\n- Creativity Level: {creativity_level}\n- Length: {target_length}\n- Target Audience: {audience}\n\nTheme/Elements to Include: {theme_elements}\n\nAdditional Instructions: {additional_instructions}\n\nPlease create engaging, original content that captures the reader's imagination.",
+  "variables": [
+    "content_type",
+    "topic",
+    "tone",
+    "creativity_level",
+    "target_length",
+    "audience",
+    "theme_elements",
+    "additional_instructions"
+  ],
+  "examples": [
+    {
+      "input": "כתוב לי סיפור קצר על חתול בחלל",
+      "output": "Creative short story about a space cat"
+    }
+  ]
+}
